@@ -1,0 +1,609 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.eurofir.org/recipe/1.0.0/recipe-record.schema.json",
+  "description": "Non-normative, collaborative groundwork schema for exchanging immutable scientific recipes, including recursively nested sub-recipes, release-qualified food classifications, provenance and flexible source references.",
+  "$vocabulary": {
+    "https://json-schema.org/draft/2020-12/vocab/core": true,
+    "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+    "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+    "https://json-schema.org/draft/2020-12/vocab/validation": true,
+    "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+    "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
+    "https://json-schema.org/draft/2020-12/vocab/format-assertion": true
+  },
+  "type": "object",
+  "required": [
+    "profile", "schemaVersion", "recordId", "createdAt", "producer",
+    "recipe", "dependencyManifest", "calculationSnapshots",
+    "sourceReferences", "provenance", "extensions"
+  ],
+  "unevaluatedProperties": false,
+  "properties": {
+    "profile": { "const": "https://schemas.eurofir.org/recipe/1/" },
+    "schemaVersion": { "$ref": "#/$defs/semVersion" },
+    "recordId": { "type": "string", "format": "uri" },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "producer": { "$ref": "#/$defs/producer" },
+    "recipe": { "$ref": "#/$defs/recipeVersion" },
+    "dependencyManifest": { "$ref": "#/$defs/dependencyManifest" },
+    "calculationSnapshots": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/calculationSnapshot" }
+    },
+    "sourceReferences": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/sourceReference" }
+    },
+    "provenance": { "$ref": "#/$defs/provenance" },
+    "extensions": {
+      "type": "object",
+      "propertyNames": { "type": "string", "format": "uri" },
+      "additionalProperties": { "$ref": "#/$defs/extension" }
+    }
+  },
+  "$defs": {
+    "semVersion": {
+      "description": "Semantic version string used for schema and immutable scientific recipe versions.",
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$"
+    },
+    "decimal": {
+      "description": "Exact base-10 decimal encoded as a JSON string, preserving precision and prohibiting negative zero.",
+      "type": "string",
+      "pattern": "^(?!-0(?:\\.0+)?$)-?(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+    },
+    "localId": {
+      "description": "Document-local identifier used for lines, observations, sources and provenance links.",
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9._:-]{0,127}$"
+    },
+    "digest": {
+      "description": "SHA-256 content digest written as the sha256 prefix and 64 lowercase hexadecimal characters.",
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "label": {
+      "description": "Language-tagged human-readable name or instruction, kept separate from semantic identifiers.",
+      "type": "object",
+      "required": ["text", "language", "labelType"],
+      "unevaluatedProperties": false,
+      "properties": {
+        "text": { "type": "string", "minLength": 1 },
+        "language": { "type": "string", "minLength": 2 },
+        "labelType": {
+          "enum": ["preferred", "alternative", "scientific", "display", "instruction"]
+        },
+        "sourceIds": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/localId" },
+          "uniqueItems": true
+        }
+      }
+    },
+    "releasePin": {
+      "description": "Exact external catalogue release, or a documented unknown-release state with retrieval evidence.",
+      "oneOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "not": { "pattern": "^[Ll][Aa][Tt][Ee][Ss][Tt]$" }
+        },
+        {
+          "type": "object",
+          "required": ["status", "retrievedOn", "sourceUrl"],
+          "unevaluatedProperties": false,
+          "properties": {
+            "status": { "const": "unknown" },
+            "retrievedOn": { "type": "string", "format": "date" },
+            "sourceUrl": { "type": "string", "format": "uri", "pattern": "^https?://" }
+          }
+        }
+      ]
+    },
+    "foodex2Notation": {
+      "description": "Serialized FoodEx2 code consisting of a base term followed by zero or more ordered facet descriptors.",
+      "type": "string",
+      "pattern": "^A[0-9A-Z]{4}(#F[0-9]{2}\\.A[0-9A-Z]{4}(\\$F[0-9]{2}\\.A[0-9A-Z]{4})*)?$"
+    },
+    "foodex2TermCode": {
+      "description": "Five-character authority-assigned FoodEx2 base-term or facet-term code.",
+      "type": "string",
+      "pattern": "^A[0-9A-Z]{4}$"
+    },
+    "foodex2FacetDescriptor": {
+      "description": "One ordered FoodEx2 facet-header and facet-term pair as serialized in a composite food code.",
+      "type": "object",
+      "required": ["facetCode", "termCode"],
+      "unevaluatedProperties": false,
+      "properties": {
+        "facetCode": { "type": "string", "pattern": "^F[0-9]{2}$" },
+        "termCode": { "$ref": "#/$defs/foodex2TermCode" }
+      }
+    },
+    "foodex2Structure": {
+      "description": "Structured decomposition of FoodEx2 notation into its base term and ordered explicit facet descriptors.",
+      "type": "object",
+      "required": ["baseTermCode", "facetDescriptors"],
+      "unevaluatedProperties": false,
+      "properties": {
+        "baseTermCode": { "$ref": "#/$defs/foodex2TermCode" },
+        "facetDescriptors": {
+          "description": "Ordered exactly as serialized in code; repeated facet headers are distinct descriptors.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/foodex2FacetDescriptor" },
+          "uniqueItems": true
+        }
+      }
+    },
+    "codeRef": {
+      "description": "Release-qualified external semantic code with optional URI and registry-specific FoodEx2 structure.",
+      "type": "object",
+      "required": ["scheme", "code", "release", "status"],
+      "unevaluatedProperties": false,
+      "properties": {
+        "scheme": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$"
+        },
+        "code": { "type": "string", "minLength": 1, "maxLength": 1024 },
+        "release": { "$ref": "#/$defs/releasePin" },
+        "uri": { "type": "string", "format": "uri" },
+        "status": { "enum": ["active", "deprecated", "unknown"] },
+        "foodex2": { "$ref": "#/$defs/foodex2Structure" }
+      },
+      "allOf": [{
+        "if": {
+          "properties": { "scheme": { "const": "efsa.foodex2" } },
+          "required": ["scheme"]
+        },
+        "then": {
+          "required": ["foodex2"],
+          "properties": { "code": { "$ref": "#/$defs/foodex2Notation" } }
+        },
+        "else": { "not": { "required": ["foodex2"] } }
+      }]
+    },
+    "foodReference": {
+      "description": "Release-pinned food-record identity with optional external classifications and language-tagged names.",
+      "type": "object",
+      "required": ["record"],
+      "unevaluatedProperties": false,
+      "properties": {
+        "record": {
+          "description": "Release-pinned FCDB food-record identity, not inferred from a classification match.",
+          "$ref": "#/$defs/codeRef"
+        },
+        "classifications": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/codeRef" },
+          "minItems": 1
+        },
+        "names": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/label" },
+          "minItems": 1
+        }
+      }
+    },
+    "measurementBasis": {
+      "description": "Quantity kind, food state and measurement conditions needed to interpret an amount correctly.",
+      "type": "object",
+      "required": ["quantityKind", "foodState"],
+      "unevaluatedProperties": false,
+      "properties": {
+        "quantityKind": {
+          "enum": ["mass", "volume", "count", "household", "serving"]
+        },
+        "foodState": {
+          "enum": [
+            "asPurchased", "edibleRawReadyToCook", "preparedIngredient",
+            "preProcess", "postProcess", "rehydrated", "drained",
+            "finalAsSold", "finalAsConsumed"
+          ]
+        },
+        "conditions": {
+          "type": "object",
+          "unevaluatedProperties": false,
+          "properties": {
+            "temperatureCelsius": { "$ref": "#/$defs/decimal" },
+            "densityGramPerMillilitre": { "$ref": "#/$defs/decimal" },
+            "description": { "type": "string" }
+          }
+        }
+      }
+    },
+    "amount": {
+      "description": "Exact numeric or explicitly qualitative amount with a unit system, unit code and measurement basis.",
+      "type": "object",
+      "required": ["unitSystem", "unitCode", "basis"],
+      "unevaluatedProperties": false,
+      "properties": {
+        "value": { "$ref": "#/$defs/decimal" },
+        "qualitativeState": { "enum": ["toTaste", "asNeeded", "unknown"] },
+        "unitSystem": { "enum": ["ucum", "eurofir.recipe.measure"] },
+        "unitCode": { "type": "string", "minLength": 1 },
+        "basis": { "$ref": "#/$defs/measurementBasis" }
+      },
+      "oneOf": [
+        { "required": ["value"], "not": { "required": ["qualitativeState"] } },
+        { "required": ["qualitativeState"], "not": { "required": ["value"] } }
+      ]
+    },
+    "foodInput": {
+      "description": "Ingredient input variant referencing a release-pinned external food record rather than a sub-recipe.",
+      "type": "object",
+      "required": ["kind", "food"],
+      "unevaluatedProperties": false,
+      "properties": {
+        "kind": { "const": "food" },
+        "food": { "$ref": "#/$defs/foodReference" }
+      }
+    },
+    "subRecipeInput": {
+      "description": "Recursive composition input whose child is itself a complete immutable recipeVersion.",
+      "type": "object",
+      "required": ["kind", "recipe"],
+      "unevaluatedProperties": false,
+      "properties": {
+        "kind": { "const": "subRecipe" },
+        "recipe": { "$ref": "#/$defs/recipeVersion" }
+      }
+    },
+    "extensionInput": {
+      "description": "Ingredient input variant carrying a governed extension for content outside the closed core model.",
+      "type": "object",
+      "required": ["kind", "extension"],
+      "unevaluatedProperties": false,
+      "properties": {
+        "kind": { "const": "extension" },
+        "extension": { "$ref": "#/$defs/extension" }
+      }
+    },
+    "ingredientInput": {
+      "description": "Exactly one primary ingredient input: food record, nested sub-recipe or governed extension.",
+      "oneOf": [
+        { "$ref": "#/$defs/foodInput" },
+        { "$ref": "#/$defs/subRecipeInput" },
+        { "$ref": "#/$defs/extensionInput" }
+      ]
+    },
+    "ingredientLine": {
+      "description": "Persistent recipe ingredient occurrence with one input, a measured amount and optional process or alternative role.",
+      "type": "object",
+      "required": ["id", "input", "amount"],
+      "unevaluatedProperties": false,
+      "properties": {
+        "id": { "$ref": "#/$defs/localId" },
+        "input": { "$ref": "#/$defs/ingredientInput" },
+        "amount": { "$ref": "#/$defs/amount" },
+        "processRole": {
+          "enum": [
+            "ordinaryInput", "compositeInput", "addedWater", "discardedWater",
+            "brineOrMarinade", "offeredFat", "absorbedFat", "residualFat"
+          ]
+        },
+        "choiceGroupId": { "$ref": "#/$defs/localId" },
+        "variantId": { "$ref": "#/$defs/localId" },
+        "optional": { "type": "boolean", "default": false }
+      }
+    },
+    "processStep": {
+      "description": "Identified preparation or processing operation linking input ingredient lines to output observations.",
+      "type": "object",
+      "required": ["id", "method", "inputIds", "outputIds"],
+      "unevaluatedProperties": false,
+      "properties": {
+        "id": { "$ref": "#/$defs/localId" },
+        "method": { "$ref": "#/$defs/codeRef" },
+        "inputIds": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/localId" },
+          "uniqueItems": true
+        },
+        "outputIds": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/localId" },
+          "uniqueItems": true
+        }
+      }
+    },
+    "weightObservation": {
+      "description": "Mass observed or assessed at a named process or final-food stage, including its source status.",
+      "type": "object",
+      "required": ["id", "stage", "mass", "valueStatus"],
+      "unevaluatedProperties": false,
+      "properties": {
+        "id": { "$ref": "#/$defs/localId" },
+        "stage": {
+          "enum": ["asPurchased", "preProcess", "postProcess", "finalAsSold", "finalAsConsumed"]
+        },
+        "mass": { "$ref": "#/$defs/amount" },
+        "valueStatus": {
+          "enum": ["measuredValue", "calculatedValue", "borrowedValue", "estimatedValue", "unknown"]
+        }
+      }
+    },
+    "recipeVersion": {
+      "description": "Complete immutable scientific recipe version containing ingredients, processes, weights and optional classifications.",
+      "type": "object",
+      "required": [
+        "conceptId", "versionId", "version", "names",
+        "ingredients", "processes", "weights"
+      ],
+      "unevaluatedProperties": false,
+      "properties": {
+        "conceptId": { "type": "string", "format": "uri" },
+        "versionId": { "type": "string", "format": "uri" },
+        "version": { "$ref": "#/$defs/semVersion" },
+        "names": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/label" },
+          "minItems": 1
+        },
+        "classifications": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/codeRef" },
+          "minItems": 1
+        },
+        "sourceIds": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/localId" },
+          "uniqueItems": true
+        },
+        "ingredients": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ingredientLine" },
+          "minItems": 1
+        },
+        "processes": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/processStep" }
+        },
+        "weights": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/weightObservation" }
+        }
+      }
+    },
+    "producer": {
+      "description": "Agent and exact software version responsible for producing the exchanged record.",
+      "type": "object",
+      "required": ["agentId", "software"],
+      "unevaluatedProperties": false,
+      "properties": {
+        "agentId": { "type": "string", "format": "uri" },
+        "software": { "$ref": "#/$defs/software" }
+      }
+    },
+    "software": {
+      "description": "Named and versioned software artefact, optionally identified by a persistent URI.",
+      "type": "object",
+      "required": ["name", "version"],
+      "unevaluatedProperties": false,
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "minLength": 1 },
+        "uri": { "type": "string", "format": "uri" }
+      }
+    },
+    "dependencyPin": {
+      "description": "External scheme release pin with optional locator and integrity digest for reproducible dependency resolution.",
+      "type": "object",
+      "required": ["scheme", "release"],
+      "unevaluatedProperties": false,
+      "properties": {
+        "scheme": { "type": "string", "minLength": 1 },
+        "release": { "$ref": "#/$defs/releasePin" },
+        "uri": { "type": "string", "format": "uri" },
+        "contentDigest": { "$ref": "#/$defs/digest" }
+      }
+    },
+    "dependencyManifest": {
+      "description": "Declared UCUM release and external scheme dependencies needed by the exchanged recipe record.",
+      "type": "object",
+      "required": ["ucumRelease", "dependencies"],
+      "unevaluatedProperties": false,
+      "properties": {
+        "ucumRelease": { "type": "string", "minLength": 1 },
+        "dependencies": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/dependencyPin" },
+          "uniqueItems": true
+        }
+      }
+    },
+    "calculationSnapshot": {
+      "description": "Minimal identity envelope for a stored or recalculated result and any sub-recipe snapshot links.",
+      "type": "object",
+      "required": ["snapshotId", "recipeVersionId", "kind"],
+      "unevaluatedProperties": false,
+      "properties": {
+        "snapshotId": { "type": "string", "format": "uri" },
+        "recipeVersionId": { "type": "string", "format": "uri" },
+        "kind": { "enum": ["storedSnapshot", "recalculated"] },
+        "subRecipeSnapshotIds": {
+          "type": "array",
+          "items": { "type": "string", "format": "uri" },
+          "uniqueItems": true
+        }
+      }
+    },
+    "doi": {
+      "description": "Bare Digital Object Identifier without a doi: prefix or resolver URL.",
+      "type": "string",
+      "pattern": "^10\\.[0-9]{4,9}/[^\\s]+$"
+    },
+    "sourceIdentifier": {
+      "description": "Typed persistent source identifier, accepting DOI lexical variants and other standard identifier schemes.",
+      "type": "object",
+      "required": ["scheme", "value"],
+      "unevaluatedProperties": false,
+      "properties": {
+        "scheme": {
+          "enum": ["doi", "pmid", "pmcid", "isbn", "issn", "handle", "ark", "other"]
+        },
+        "value": { "type": "string", "minLength": 1 }
+      },
+      "allOf": [{
+        "if": {
+          "properties": { "scheme": { "const": "doi" } },
+          "required": ["scheme"]
+        },
+        "then": {
+          "properties": {
+            "value": {
+              "description": "Accept bare DOI, doi: prefix, or doi.org/dx.doi.org resolver URL; retain the supplied lexical form.",
+              "anyOf": [
+                { "$ref": "#/$defs/doi" },
+                { "type": "string", "pattern": "^[Dd][Oo][Ii]:10\\.[0-9]{4,9}/[^\\s]+$" },
+                { "type": "string", "format": "uri", "pattern": "^https?://(dx\\.)?doi\\.org/10\\.[0-9]{4,9}/[^\\s]+$" }
+              ]
+            }
+          }
+        }
+      }]
+    },
+    "sourceUrl": {
+      "description": "Typed HTTP(S) locator for source content with retrieval, media-type and integrity metadata.",
+      "type": "object",
+      "required": ["url", "relation"],
+      "unevaluatedProperties": false,
+      "properties": {
+        "url": { "type": "string", "format": "uri", "pattern": "^https?://" },
+        "relation": {
+          "enum": ["landingPage", "fullText", "download", "catalogue", "api", "archive"]
+        },
+        "retrievedOn": { "type": "string", "format": "date" },
+        "mediaType": { "type": "string", "minLength": 1 },
+        "contentDigest": { "$ref": "#/$defs/digest" }
+      }
+    },
+    "sourceReference": {
+      "description": "Structured bibliographic or documentary source with titles, persistent identifiers and typed source URLs.",
+      "type": "object",
+      "required": ["id", "sourceType"],
+      "unevaluatedProperties": false,
+      "properties": {
+        "id": { "$ref": "#/$defs/localId" },
+        "sourceType": {
+          "enum": [
+            "publication", "report", "dataset", "database", "software",
+            "standard", "webPage", "productLabel", "other"
+          ]
+        },
+        "titles": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/label" },
+          "minItems": 1
+        },
+        "citation": { "type": "string", "minLength": 1 },
+        "authors": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "publicationDate": {
+          "type": "string",
+          "pattern": "^[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?$"
+        },
+        "version": { "type": "string", "minLength": 1 },
+        "identifiers": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/sourceIdentifier" },
+          "minItems": 1
+        },
+        "urls": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/sourceUrl" },
+          "minItems": 1
+        },
+        "license": { "type": "string", "minLength": 1 }
+      },
+      "anyOf": [
+        { "required": ["titles"] },
+        { "required": ["citation"] },
+        { "required": ["identifiers"] },
+        { "required": ["urls"] }
+      ]
+    },
+    "provenanceEntity": {
+      "description": "Provenance entity with an optional source reference and links to entities from which it was derived.",
+      "type": "object",
+      "required": ["id"],
+      "unevaluatedProperties": false,
+      "properties": {
+        "id": { "$ref": "#/$defs/localId" },
+        "type": { "type": "string" },
+        "sourceReferenceId": { "$ref": "#/$defs/localId" },
+        "wasDerivedFrom": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/localId" },
+          "uniqueItems": true
+        }
+      }
+    },
+    "provenanceActivity": {
+      "description": "Provenance activity recording the entities used and generated by an action or process.",
+      "type": "object",
+      "required": ["id"],
+      "unevaluatedProperties": false,
+      "properties": {
+        "id": { "$ref": "#/$defs/localId" },
+        "type": { "type": "string" },
+        "used": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/localId" },
+          "uniqueItems": true
+        },
+        "generated": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/localId" },
+          "uniqueItems": true
+        }
+      }
+    },
+    "provenanceAgent": {
+      "description": "Person, organization or software agent associated with provenance activities and assertions.",
+      "type": "object",
+      "required": ["id", "type", "name"],
+      "unevaluatedProperties": false,
+      "properties": {
+        "id": { "$ref": "#/$defs/localId" },
+        "type": { "enum": ["person", "organization", "software"] },
+        "name": { "type": "string", "minLength": 1 }
+      }
+    },
+    "provenance": {
+      "description": "Entity, activity and agent collections supporting derivation and responsibility links for the record.",
+      "type": "object",
+      "required": ["entities", "activities", "agents"],
+      "unevaluatedProperties": false,
+      "properties": {
+        "entities": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/provenanceEntity" }
+        },
+        "activities": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/provenanceActivity" }
+        },
+        "agents": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/provenanceAgent" }
+        }
+      }
+    },
+    "extension": {
+      "description": "Governed extension payload with a URI owner, schema release and explicit criticality for safe processing.",
+      "type": "object",
+      "required": ["owner", "schemaVersion", "critical", "value"],
+      "unevaluatedProperties": false,
+      "properties": {
+        "owner": { "type": "string", "format": "uri" },
+        "schemaVersion": { "type": "string", "minLength": 1 },
+        "critical": { "type": "boolean" },
+        "value": true
+      }
+    }
+  }
+}
