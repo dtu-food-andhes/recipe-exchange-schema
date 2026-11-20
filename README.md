@@ -8,6 +8,70 @@ It is the **very first groundwork**, not a finished specification. We are callin
 
 This is an independent proposal. **It is not an adopted EuroFIR, EFSA or other international standard, and no endorsement is claimed.** Names, identifiers and values in the example are illustrative except where an external source is explicitly cited.
 
+<details>
+<summary><strong>But, what even is a JSON Schema? (with an example)</strong></summary>
+
+<p>JSON is the default for web and API traffic and the dominant way to store and exchange structured information as text. A <strong>JSON Schema</strong> is like the rulebook or a form template for that information: it describes which fields a record must contain, what kind of value each field accepts, and which values or structures are allowed.</p>
+
+<p>For a recipe record, these rules can require ingredient names and quantities, ensure that dates and identifiers have the right form, and describe how one recipe can include another recipe as an ingredient. A computer program called a <strong>validator</strong> can then check a record automatically and report missing fields or incorrectly structured data before it is exchanged or used.</p>
+
+<h3>A small example</h3>
+
+<p>Here is a JSON record describing a person:</p>
+
+<pre><code class="language-json">{
+  "name": "Michael Pollan",
+  "age": 71,
+  "email": "mp@example.com",
+  "isActive": true,
+  "tags": ["food", "journalist"]
+}
+</code></pre>
+
+<p><strong>Example filename:</strong> <code>michael_pollan.json</code></p>
+
+<p>One possible JSON Schema for records like this is:</p>
+
+<pre><code class="language-json">{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Person",
+  "type": "object",
+  "properties": {
+    "name": { "type": "string", "minLength": 1 },
+    "age": { "type": "integer", "minimum": 0 },
+    "email": { "type": "string", "format": "email" },
+    "isActive": { "type": "boolean" },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    }
+  },
+  "required": ["name", "email"],
+  "additionalProperties": false
+}
+</code></pre>
+
+<p><strong>Schema filename:</strong> <code>person.schema.json</code></p>
+
+<p>In plain English, this schema says:</p>
+
+<ul>
+  <li>The record must be an object with a <strong>name</strong> and an <strong>email address</strong>. The other fields are optional.</li>
+  <li><code>name</code> must be a non-empty string, while <code>email</code> must be a string in email format when format checking is enabled.</li>
+  <li>If <code>age</code> is present, it must be a whole number of zero or more.</li>
+  <li><code>isActive</code> must be <code>true</code> or <code>false</code>.</li>
+  <li><code>tags</code> must be a list of strings without duplicates.</li>
+  <li><code>additionalProperties: false</code> means that fields not listed in the schema are rejected.</li>
+  <li><code>$schema</code> identifies the version of JSON Schema being used.</li>
+</ul>
+
+<p>Michael’s record follows all these rules, so a validator would accept it. Removing <code>name</code>, setting <code>age</code> to <code>-1</code>, or adding an unlisted field such as <code>nickname</code> would make the record invalid.</p>
+
+<p>Validation means that a record follows the agreed structure; it does not prove that the recipe is nutritionally correct, that external food codes are current, or that the real-world cooking instructions work. Those checks require additional rules and expertise.</p>
+
+</details>
+
 ## What is here
 
 - [`recipe-record.schema.json`](recipe-record.schema.json) — an illustrative JSON Schema 2020-12 profile with reusable `$defs`, recursive recipe composition, release-qualified code references and governed extensions.
