@@ -1,5 +1,5 @@
 {
-  "profile": "https://schemas.eurofir.org/recipe/1/",
+  "profile": "https://schemas.food.dtu.dk/recipe/1/",
   "schemaVersion": "1.0.0",
   "recordId": "urn:uuid:11111111-1111-4111-8111-111111111111",
   "createdAt": "2026-11-10T12:00:00Z",
@@ -11,33 +11,37 @@
     "conceptId": "urn:uuid:22222222-2222-4222-8222-222222222222",
     "versionId": "urn:uuid:33333333-3333-4333-8333-333333333333",
     "version": "1.0.0",
-    "names": [{
-      "text": "Tomato, basil and garlic sauce in a glass jar",
-      "language": "en",
-      "labelType": "preferred",
-      "sourceIds": ["src-foodex2-example"]
-    }],
-    "classifications": [{
-      "scheme": "efsa.foodex2",
-      "code": "A044C#F04.A00GZ$F04.A00VV$F28.A07HV$F28.A0BYP$F18.A07NN$F19.A07PF",
-      "release": {
-        "status": "unknown",
-        "retrievedOn": "2026-11-19",
-        "sourceUrl": "https://www.efsa.europa.eu/sites/default/files/FoodEx2-presentation-2-181003.pdf"
-      },
-      "status": "unknown",
-      "foodex2": {
-        "baseTermCode": "A044C",
-        "facetDescriptors": [
-          { "facetCode": "F04", "termCode": "A00GZ" },
-          { "facetCode": "F04", "termCode": "A00VV" },
-          { "facetCode": "F28", "termCode": "A07HV" },
-          { "facetCode": "F28", "termCode": "A0BYP" },
-          { "facetCode": "F18", "termCode": "A07NN" },
-          { "facetCode": "F19", "termCode": "A07PF" }
-        ]
+    "names": [
+      {
+        "text": "Tomato, basil and garlic sauce in a glass jar",
+        "language": "en",
+        "labelType": "preferred",
+        "sourceIds": ["src-foodex2-example"]
       }
-    }],
+    ],
+    "classifications": [
+      {
+        "scheme": "efsa.foodex2",
+        "code": "A044C#F04.A00GZ$F04.A00VV$F28.A07HV$F28.A0BYP$F18.A07NN$F19.A07PF",
+        "release": {
+          "status": "unknown",
+          "retrievedOn": "2026-11-19",
+          "sourceUrl": "https://www.efsa.europa.eu/sites/default/files/FoodEx2-presentation-2-181003.pdf"
+        },
+        "status": "unknown",
+        "foodex2": {
+          "baseTermCode": "A044C",
+          "facetDescriptors": [
+            { "facetCode": "F04", "termCode": "A00GZ" },
+            { "facetCode": "F04", "termCode": "A00VV" },
+            { "facetCode": "F28", "termCode": "A07HV" },
+            { "facetCode": "F28", "termCode": "A0BYP" },
+            { "facetCode": "F18", "termCode": "A07NN" },
+            { "facetCode": "F19", "termCode": "A07PF" }
+          ]
+        }
+      }
+    ],
     "sourceIds": ["src-foodex2-example"],
     "ingredients": [
       {
@@ -48,58 +52,74 @@
             "conceptId": "urn:uuid:44444444-4444-4444-8444-444444444444",
             "versionId": "urn:uuid:55555555-5555-4555-8555-555555555555",
             "version": "1.2.0",
-            "names": [{
-              "text": "Cooked tomato base",
-              "language": "en",
-              "labelType": "preferred"
-            }],
-            "ingredients": [{
-              "id": "line-tomato",
-              "input": {
-                "kind": "food",
-                "food": {
-                  "record": {
-                    "scheme": "org.example.fcdb",
-                    "code": "FOOD-TOMATO-001",
-                    "release": "2026-01",
-                    "status": "active"
-                  },
-                  "names": [{
-                    "text": "Tomatoes, raw",
-                    "language": "en",
-                    "labelType": "preferred"
-                  }]
-                }
-              },
-              "amount": {
-                "value": "150.0",
-                "unitSystem": "ucum",
-                "unitCode": "g",
-                "basis": { "quantityKind": "mass", "foodState": "edibleRawReadyToCook" }
+            "names": [
+              {
+                "text": "Cooked tomato base",
+                "language": "en",
+                "labelType": "preferred"
               }
-            }],
-            "processes": [{
-              "id": "step-cook-base",
-              "method": {
-                "scheme": "org.example.recipe.process",
-                "code": "cook",
-                "release": "1.0.0",
-                "status": "active"
-              },
-              "inputIds": ["line-tomato"],
-              "outputIds": ["weight-tomato-base"]
-            }],
-            "weights": [{
-              "id": "weight-tomato-base",
-              "stage": "finalAsConsumed",
-              "mass": {
-                "value": "100.0",
-                "unitSystem": "ucum",
-                "unitCode": "g",
-                "basis": { "quantityKind": "mass", "foodState": "finalAsConsumed" }
-              },
-              "valueStatus": "measuredValue"
-            }]
+            ],
+            "ingredients": [
+              {
+                "id": "line-tomato",
+                "input": {
+                  "kind": "food",
+                  "food": {
+                    "record": {
+                      "scheme": "org.example.fcdb",
+                      "code": "FOOD-TOMATO-001",
+                      "release": "2026-01",
+                      "status": "active"
+                    },
+                    "names": [
+                      {
+                        "text": "Tomatoes, raw",
+                        "language": "en",
+                        "labelType": "preferred"
+                      }
+                    ]
+                  }
+                },
+                "amount": {
+                  "value": "150.0",
+                  "unitSystem": "ucum",
+                  "unitCode": "g",
+                  "basis": {
+                    "quantityKind": "mass",
+                    "foodState": "edibleRawReadyToCook"
+                  }
+                }
+              }
+            ],
+            "processes": [
+              {
+                "id": "step-cook-base",
+                "method": {
+                  "scheme": "org.example.recipe.process",
+                  "code": "cook",
+                  "release": "1.0.0",
+                  "status": "active"
+                },
+                "inputIds": ["line-tomato"],
+                "outputIds": ["weight-tomato-base"]
+              }
+            ],
+            "weights": [
+              {
+                "id": "weight-tomato-base",
+                "stage": "finalAsConsumed",
+                "mass": {
+                  "value": "100.0",
+                  "unitSystem": "ucum",
+                  "unitCode": "g",
+                  "basis": {
+                    "quantityKind": "mass",
+                    "foodState": "finalAsConsumed"
+                  }
+                },
+                "valueStatus": "measuredValue"
+              }
+            ]
           }
         },
         "amount": {
@@ -121,25 +141,32 @@
               "release": "2026-01",
               "status": "active"
             },
-            "classifications": [{
-              "scheme": "efsa.foodex2",
-              "code": "A00GZ",
-              "release": {
+            "classifications": [
+              {
+                "scheme": "efsa.foodex2",
+                "code": "A00GZ",
+                "release": {
+                  "status": "unknown",
+                  "retrievedOn": "2026-11-19",
+                  "sourceUrl": "https://www.efsa.europa.eu/sites/default/files/FoodEx2-presentation-2-181003.pdf"
+                },
                 "status": "unknown",
-                "retrievedOn": "2026-11-19",
-                "sourceUrl": "https://www.efsa.europa.eu/sites/default/files/FoodEx2-presentation-2-181003.pdf"
-              },
-              "status": "unknown",
-              "foodex2": { "baseTermCode": "A00GZ", "facetDescriptors": [] }
-            }],
-            "names": [{ "text": "Basil", "language": "en", "labelType": "preferred" }]
+                "foodex2": { "baseTermCode": "A00GZ", "facetDescriptors": [] }
+              }
+            ],
+            "names": [
+              { "text": "Basil", "language": "en", "labelType": "preferred" }
+            ]
           }
         },
         "amount": {
           "value": "5.0",
           "unitSystem": "ucum",
           "unitCode": "g",
-          "basis": { "quantityKind": "mass", "foodState": "edibleRawReadyToCook" }
+          "basis": {
+            "quantityKind": "mass",
+            "foodState": "edibleRawReadyToCook"
+          }
         }
       },
       {
@@ -153,50 +180,61 @@
               "release": "2026-01",
               "status": "active"
             },
-            "classifications": [{
-              "scheme": "efsa.foodex2",
-              "code": "A00VV",
-              "release": {
+            "classifications": [
+              {
+                "scheme": "efsa.foodex2",
+                "code": "A00VV",
+                "release": {
+                  "status": "unknown",
+                  "retrievedOn": "2026-11-19",
+                  "sourceUrl": "https://www.efsa.europa.eu/sites/default/files/FoodEx2-presentation-2-181003.pdf"
+                },
                 "status": "unknown",
-                "retrievedOn": "2026-11-19",
-                "sourceUrl": "https://www.efsa.europa.eu/sites/default/files/FoodEx2-presentation-2-181003.pdf"
-              },
-              "status": "unknown",
-              "foodex2": { "baseTermCode": "A00VV", "facetDescriptors": [] }
-            }],
-            "names": [{ "text": "Garlic", "language": "en", "labelType": "preferred" }]
+                "foodex2": { "baseTermCode": "A00VV", "facetDescriptors": [] }
+              }
+            ],
+            "names": [
+              { "text": "Garlic", "language": "en", "labelType": "preferred" }
+            ]
           }
         },
         "amount": {
           "value": "2.0",
           "unitSystem": "ucum",
           "unitCode": "g",
-          "basis": { "quantityKind": "mass", "foodState": "edibleRawReadyToCook" }
+          "basis": {
+            "quantityKind": "mass",
+            "foodState": "edibleRawReadyToCook"
+          }
         }
       }
     ],
-    "processes": [{
-      "id": "step-package",
-      "method": {
-        "scheme": "org.example.recipe.process",
-        "code": "jar-and-pasteurize",
-        "release": "1.0.0",
-        "status": "active"
-      },
-      "inputIds": ["line-tomato-base", "line-basil", "line-garlic"],
-      "outputIds": ["weight-finished-sauce"]
-    }],
-    "weights": [{
-      "id": "weight-finished-sauce",
-      "stage": "finalAsSold",
-      "mass": {
-        "value": "95.0",
-        "unitSystem": "ucum",
-        "unitCode": "g",
-        "basis": { "quantityKind": "mass", "foodState": "finalAsSold" }
-      },
-      "valueStatus": "measuredValue"
-    }]
+    "processes": [
+      {
+        "id": "step-package",
+        "method": {
+          "scheme": "org.example.recipe.process",
+          "code": "jar-and-pasteurize",
+          "release": "1.0.0",
+          "status": "active"
+        },
+        "inputIds": ["line-tomato-base", "line-basil", "line-garlic"],
+        "outputIds": ["weight-finished-sauce"]
+      }
+    ],
+    "weights": [
+      {
+        "id": "weight-finished-sauce",
+        "stage": "finalAsSold",
+        "mass": {
+          "value": "95.0",
+          "unitSystem": "ucum",
+          "unitCode": "g",
+          "basis": { "quantityKind": "mass", "foodState": "finalAsSold" }
+        },
+        "valueStatus": "measuredValue"
+      }
+    ]
   },
   "dependencyManifest": {
     "ucumRelease": "2.2",
@@ -221,37 +259,47 @@
     {
       "id": "src-foodex2-example",
       "sourceType": "report",
-      "titles": [{
-        "text": "EFSA FoodEx2 coding examples",
-        "language": "en",
-        "labelType": "preferred"
-      }],
+      "titles": [
+        {
+          "text": "EFSA FoodEx2 coding examples",
+          "language": "en",
+          "labelType": "preferred"
+        }
+      ],
       "publicationDate": "2018",
-      "urls": [{
-        "url": "https://www.efsa.europa.eu/sites/default/files/FoodEx2-presentation-2-181003.pdf",
-        "relation": "fullText",
-        "retrievedOn": "2026-11-19",
-        "mediaType": "application/pdf"
-      }]
+      "urls": [
+        {
+          "url": "https://www.efsa.europa.eu/sites/default/files/FoodEx2-presentation-2-181003.pdf",
+          "relation": "fullText",
+          "retrievedOn": "2026-11-19",
+          "mediaType": "application/pdf"
+        }
+      ]
     },
     {
       "id": "src-foodex2-maintenance",
       "sourceType": "report",
-      "titles": [{
-        "text": "FoodEx2 maintenance 2025",
-        "language": "en",
-        "labelType": "preferred"
-      }],
+      "titles": [
+        {
+          "text": "FoodEx2 maintenance 2025",
+          "language": "en",
+          "labelType": "preferred"
+        }
+      ],
       "publicationDate": "2026",
-      "identifiers": [{
-        "scheme": "doi",
-        "value": "https://doi.org/10.2903/sp.efsa.2026.EN-10069"
-      }],
-      "urls": [{
-        "url": "https://efsa.onlinelibrary.wiley.com/doi/abs/10.2903/sp.efsa.2026.EN-10069",
-        "relation": "landingPage",
-        "retrievedOn": "2026-11-10"
-      }]
+      "identifiers": [
+        {
+          "scheme": "doi",
+          "value": "https://doi.org/10.2903/sp.efsa.2026.EN-10069"
+        }
+      ],
+      "urls": [
+        {
+          "url": "https://efsa.onlinelibrary.wiley.com/doi/abs/10.2903/sp.efsa.2026.EN-10069",
+          "relation": "landingPage",
+          "retrievedOn": "2026-11-10"
+        }
+      ]
     }
   ],
   "provenance": { "entities": [], "activities": [], "agents": [] },

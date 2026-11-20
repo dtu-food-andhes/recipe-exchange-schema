@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.eurofir.org/recipe/1.0.0/recipe-record.schema.json",
+  "$id": "https://schemas.food.dtu.dk/recipe/1.0.0/recipe-record.schema.json",
   "description": "Non-normative, collaborative groundwork schema for exchanging immutable scientific recipes, including recursively nested sub-recipes, release-qualified food classifications, provenance and flexible source references.",
   "$vocabulary": {
     "https://json-schema.org/draft/2020-12/vocab/core": true,
@@ -13,13 +13,21 @@
   },
   "type": "object",
   "required": [
-    "profile", "schemaVersion", "recordId", "createdAt", "producer",
-    "recipe", "dependencyManifest", "calculationSnapshots",
-    "sourceReferences", "provenance", "extensions"
+    "profile",
+    "schemaVersion",
+    "recordId",
+    "createdAt",
+    "producer",
+    "recipe",
+    "dependencyManifest",
+    "calculationSnapshots",
+    "sourceReferences",
+    "provenance",
+    "extensions"
   ],
   "unevaluatedProperties": false,
   "properties": {
-    "profile": { "const": "https://schemas.eurofir.org/recipe/1/" },
+    "profile": { "const": "https://schemas.food.dtu.dk/recipe/1/" },
     "schemaVersion": { "$ref": "#/$defs/semVersion" },
     "recordId": { "type": "string", "format": "uri" },
     "createdAt": { "type": "string", "format": "date-time" },
@@ -71,7 +79,13 @@
         "text": { "type": "string", "minLength": 1 },
         "language": { "type": "string", "minLength": 2 },
         "labelType": {
-          "enum": ["preferred", "alternative", "scientific", "display", "instruction"]
+          "enum": [
+            "preferred",
+            "alternative",
+            "scientific",
+            "display",
+            "instruction"
+          ]
         },
         "sourceIds": {
           "type": "array",
@@ -96,7 +110,11 @@
           "properties": {
             "status": { "const": "unknown" },
             "retrievedOn": { "type": "string", "format": "date" },
-            "sourceUrl": { "type": "string", "format": "uri", "pattern": "^https?://" }
+            "sourceUrl": {
+              "type": "string",
+              "format": "uri",
+              "pattern": "^https?://"
+            }
           }
         }
       ]
@@ -152,17 +170,19 @@
         "status": { "enum": ["active", "deprecated", "unknown"] },
         "foodex2": { "$ref": "#/$defs/foodex2Structure" }
       },
-      "allOf": [{
-        "if": {
-          "properties": { "scheme": { "const": "efsa.foodex2" } },
-          "required": ["scheme"]
-        },
-        "then": {
-          "required": ["foodex2"],
-          "properties": { "code": { "$ref": "#/$defs/foodex2Notation" } }
-        },
-        "else": { "not": { "required": ["foodex2"] } }
-      }]
+      "allOf": [
+        {
+          "if": {
+            "properties": { "scheme": { "const": "efsa.foodex2" } },
+            "required": ["scheme"]
+          },
+          "then": {
+            "required": ["foodex2"],
+            "properties": { "code": { "$ref": "#/$defs/foodex2Notation" } }
+          },
+          "else": { "not": { "required": ["foodex2"] } }
+        }
+      ]
     },
     "foodReference": {
       "description": "Release-pinned food-record identity with optional external classifications and language-tagged names.",
@@ -197,9 +217,15 @@
         },
         "foodState": {
           "enum": [
-            "asPurchased", "edibleRawReadyToCook", "preparedIngredient",
-            "preProcess", "postProcess", "rehydrated", "drained",
-            "finalAsSold", "finalAsConsumed"
+            "asPurchased",
+            "edibleRawReadyToCook",
+            "preparedIngredient",
+            "preProcess",
+            "postProcess",
+            "rehydrated",
+            "drained",
+            "finalAsSold",
+            "finalAsConsumed"
           ]
         },
         "conditions": {
@@ -279,8 +305,14 @@
         "amount": { "$ref": "#/$defs/amount" },
         "processRole": {
           "enum": [
-            "ordinaryInput", "compositeInput", "addedWater", "discardedWater",
-            "brineOrMarinade", "offeredFat", "absorbedFat", "residualFat"
+            "ordinaryInput",
+            "compositeInput",
+            "addedWater",
+            "discardedWater",
+            "brineOrMarinade",
+            "offeredFat",
+            "absorbedFat",
+            "residualFat"
           ]
         },
         "choiceGroupId": { "$ref": "#/$defs/localId" },
@@ -316,11 +348,23 @@
       "properties": {
         "id": { "$ref": "#/$defs/localId" },
         "stage": {
-          "enum": ["asPurchased", "preProcess", "postProcess", "finalAsSold", "finalAsConsumed"]
+          "enum": [
+            "asPurchased",
+            "preProcess",
+            "postProcess",
+            "finalAsSold",
+            "finalAsConsumed"
+          ]
         },
         "mass": { "$ref": "#/$defs/amount" },
         "valueStatus": {
-          "enum": ["measuredValue", "calculatedValue", "borrowedValue", "estimatedValue", "unknown"]
+          "enum": [
+            "measuredValue",
+            "calculatedValue",
+            "borrowedValue",
+            "estimatedValue",
+            "unknown"
+          ]
         }
       }
     },
@@ -328,8 +372,13 @@
       "description": "Complete immutable scientific recipe version containing ingredients, processes, weights and optional classifications.",
       "type": "object",
       "required": [
-        "conceptId", "versionId", "version", "names",
-        "ingredients", "processes", "weights"
+        "conceptId",
+        "versionId",
+        "version",
+        "names",
+        "ingredients",
+        "processes",
+        "weights"
       ],
       "unevaluatedProperties": false,
       "properties": {
@@ -441,28 +490,46 @@
       "unevaluatedProperties": false,
       "properties": {
         "scheme": {
-          "enum": ["doi", "pmid", "pmcid", "isbn", "issn", "handle", "ark", "other"]
+          "enum": [
+            "doi",
+            "pmid",
+            "pmcid",
+            "isbn",
+            "issn",
+            "handle",
+            "ark",
+            "other"
+          ]
         },
         "value": { "type": "string", "minLength": 1 }
       },
-      "allOf": [{
-        "if": {
-          "properties": { "scheme": { "const": "doi" } },
-          "required": ["scheme"]
-        },
-        "then": {
-          "properties": {
-            "value": {
-              "description": "Accept bare DOI, doi: prefix, or doi.org/dx.doi.org resolver URL; retain the supplied lexical form.",
-              "anyOf": [
-                { "$ref": "#/$defs/doi" },
-                { "type": "string", "pattern": "^[Dd][Oo][Ii]:10\\.[0-9]{4,9}/[^\\s]+$" },
-                { "type": "string", "format": "uri", "pattern": "^https?://(dx\\.)?doi\\.org/10\\.[0-9]{4,9}/[^\\s]+$" }
-              ]
+      "allOf": [
+        {
+          "if": {
+            "properties": { "scheme": { "const": "doi" } },
+            "required": ["scheme"]
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "description": "Accept bare DOI, doi: prefix, or doi.org/dx.doi.org resolver URL; retain the supplied lexical form.",
+                "anyOf": [
+                  { "$ref": "#/$defs/doi" },
+                  {
+                    "type": "string",
+                    "pattern": "^[Dd][Oo][Ii]:10\\.[0-9]{4,9}/[^\\s]+$"
+                  },
+                  {
+                    "type": "string",
+                    "format": "uri",
+                    "pattern": "^https?://(dx\\.)?doi\\.org/10\\.[0-9]{4,9}/[^\\s]+$"
+                  }
+                ]
+              }
             }
           }
         }
-      }]
+      ]
     },
     "sourceUrl": {
       "description": "Typed HTTP(S) locator for source content with retrieval, media-type and integrity metadata.",
@@ -472,7 +539,14 @@
       "properties": {
         "url": { "type": "string", "format": "uri", "pattern": "^https?://" },
         "relation": {
-          "enum": ["landingPage", "fullText", "download", "catalogue", "api", "archive"]
+          "enum": [
+            "landingPage",
+            "fullText",
+            "download",
+            "catalogue",
+            "api",
+            "archive"
+          ]
         },
         "retrievedOn": { "type": "string", "format": "date" },
         "mediaType": { "type": "string", "minLength": 1 },
@@ -488,8 +562,15 @@
         "id": { "$ref": "#/$defs/localId" },
         "sourceType": {
           "enum": [
-            "publication", "report", "dataset", "database", "software",
-            "standard", "webPage", "productLabel", "other"
+            "publication",
+            "report",
+            "dataset",
+            "database",
+            "software",
+            "standard",
+            "webPage",
+            "productLabel",
+            "other"
           ]
         },
         "titles": {
